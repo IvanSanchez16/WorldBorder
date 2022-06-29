@@ -212,11 +212,13 @@ public class BorderData
 	{
 		// if this border has a shape override set, use it
 		if (shapeRound != null)
-			round = shapeRound.booleanValue();
+			round = shapeRound;
 
 		double xLoc = loc.getX();
 		double zLoc = loc.getZ();
 		double yLoc = loc.getY();
+
+		float pitchLoc = loc.getPitch();
 
 		// square border
 		if (!round)
@@ -227,10 +229,20 @@ public class BorderData
 					xLoc = maxX - Config.KnockBack();
 				else if (xLoc >= maxX)
 					xLoc = minX + Config.KnockBack();
-				if (zLoc <= minZ)
-					zLoc = maxZ - Config.KnockBack();
-				else if (zLoc >= maxZ)
+				// Change to realistic teleport (earth is round)
+				float newPitch = pitchLoc >= 0 ? pitchLoc + 180 : pitchLoc - 180;
+				if (zLoc <= minZ) {
+					//zLoc = maxZ - Config.KnockBack();
 					zLoc = minZ + Config.KnockBack();
+					xLoc = xLoc >= 0 ? xLoc - (maxX + 1.5) : xLoc + (maxX - 1.5);
+					pitchLoc = newPitch;
+				}
+				else if (zLoc >= maxZ) {
+					//zLoc = minZ + Config.KnockBack();
+					zLoc = maxZ - Config.KnockBack();
+					xLoc = xLoc >= 0 ? xLoc - (maxX + 1.5) : xLoc + (maxX - 1.5);
+					pitchLoc = newPitch;
+				}
 			}
 			else
 			{
@@ -279,7 +291,7 @@ public class BorderData
 		if (yLoc == -1)
 			return null;
 
-		return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, yLoc, Math.floor(zLoc) + 0.5, loc.getYaw(), loc.getPitch());
+		return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, yLoc, Math.floor(zLoc) + 0.5, loc.getYaw(), pitchLoc);
 	}
 	public Location correctedPosition(Location loc, boolean round)
 	{
